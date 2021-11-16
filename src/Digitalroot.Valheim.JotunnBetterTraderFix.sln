@@ -11,15 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{E64D67E6-C2B6-471C-990D-2E9A91427B64}"
-	ProjectSection(SolutionItems) = preProject
-		..\.github\release-drafter.yml = ..\.github\release-drafter.yml
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{1960DCD1-3C51-48FF-BFF8-5FE4C3CBABB2}"
-	ProjectSection(SolutionItems) = preProject
-		..\.github\workflows\drafter.yml = ..\.github\workflows\drafter.yml
-		..\.github\workflows\publish.yml = ..\.github\workflows\publish.yml
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
