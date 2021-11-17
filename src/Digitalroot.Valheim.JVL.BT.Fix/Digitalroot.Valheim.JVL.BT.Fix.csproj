@@ -1,0 +1,161 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<AssemblyName>Digitalroot.Valheim.JotunnBetterTraderFix</AssemblyName>
+		<TargetFrameworks>net462</TargetFrameworks>
+		<LangVersion>9</LangVersion>
+		<PackageId>Digitalroot.Valheim.JotunnBetterTraderFix</PackageId>
+		<RootNamespace>Digitalroot.Valheim.JotunnBetterTraderFix</RootNamespace>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+		<Copyright>Copyright © Digitalroot Technologies 2021 - 2022</Copyright>
+		<PackageProjectUrl>https://github.com/Digitalroot-Valheim/Digitalroot.Valheim.Common.Names</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Digitalroot-Valheim/Digitalroot.Valheim.Common.Names</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Authors>Digitalroot</Authors>
+		<Company>Digitalroot Technologies</Company>
+		<Product>Digitalroot Valheim Jotunn and Better Trader Fix</Product>
+		<Description>Makes items loaded via Jotunn available in BetterTrader</Description>
+		<PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<VersionPrefix>1.0.0</VersionPrefix>
+		<RestoreAdditionalProjectSources>
+			https://nuget.bepinex.dev/v3/index.json;
+			https://digitalroot-valheim-nuget.s3.us-west-2.amazonaws.com/index.json
+		</RestoreAdditionalProjectSources>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net462|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<OutputPath>bin\Debug</OutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE</DefineConstants>
+		<OutputPath>bin\Release</OutputPath>
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\docs\LICENSE" Link="LICENSE">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="BepInEx.Core" Version="5.4.16">
+	    <IncludeAssets>compile</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="Digitalroot.Valheim.Common.References" Version="0.204.5">
+	    <IncludeAssets>compile</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="ErrorProne.NET.CoreAnalyzers" Version="0.1.2">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="JotunnLib" Version="2.3.12">
+	    <IncludeAssets>compile</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="UnityEngine.Modules" Version="[2019.4.32]">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>compile</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="BetterTrader">
+	    <HintPath>..\externals\BetterTrader.dll</HintPath>
+	    <Private>false</Private>
+	  </Reference>
+	</ItemGroup>
+
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Exec Command="echo 'PreBuild'" />
+	</Target>
+
+	<Target Name="BeforeBuild" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)' == 'Release'">
+		<Message Text="BeforeBuild Called" Importance="high" />
+		<ItemGroup>
+			<BuildFiles Include="$(TargetDir)..\$(ProjectName)\$(ProjectName)\$(ProjectName).dll" />
+		</ItemGroup>
+		<Message Text="@(BuildFiles)" Importance="high" />
+		<Message Text="Deleting files from $(TargetDir)..\$(ProjectName)\$(ProjectName)" Importance="high" />
+		<Delete Files="@(BuildFiles)" />
+	</Target>
+
+	<Target Name="RefreshVars" AfterTargets="PostBuildEvent" Label="MyRefreshVars">
+		<Message Text="RefreshVars Called" Importance="high" />
+		<ItemGroup>
+			<DigitalrootSourceFiles Include="$(TargetDir)**\*.*" />
+			<DigitalrootBuildFiles Include="$(TargetDir)..\$(ProjectName)\$(ProjectName)\$(ProjectName).dll" />
+			<DigitalrootTSIOFiles Include="$(ProjectDir).ts\*.*" />
+			<DigitalrootReadMeFile Include="$(SolutionDir)..\docs\README.md" />
+			<DigitalrootLicenseFile Include="$(SolutionDir)..\docs\LICENSE" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="DebugPostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Debug'" DependsOnTargets="RefreshVars">
+		<Message Text="DebugPostBuild Called" Importance="high" />
+		<Message Text="Copying assemblies to C:\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\plugins\$(ProjectName)\" Importance="high" />
+		<CallTarget Targets="RefreshVars" />
+		<Copy SourceFiles="@(DigitalrootSourceFiles)" DestinationFiles="@(DigitalrootSourceFiles->'C:\Program Files (x86)\Steam\steamapps\common\Valheim\BepInEx\plugins\$(ProjectName)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" OverwriteReadOnlyFiles="true" />
+	</Target>
+
+	<Target Name="ReleasePostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'" DependsOnTargets="RefreshVars">
+		<Message Text="ReleasePostBuild Called" Importance="high" />
+		<CallTarget Targets="RefreshVars" />
+		<MakeDir Directories="$(TargetDir)..\$(ProjectName)\$(ProjectName)" />
+		<Message Text="Deleting files from $(TargetDir)..\$(ProjectName)" Importance="high" />
+		<Delete Files="$(TargetDir)..\$(ProjectName)\**\*.*" />
+		<Message Text="Copying @(DigitalrootSourceFiles) to $(TargetDir)..\$(ProjectName)\$(ProjectName)" Importance="high" />
+		<Copy SourceFiles="@(DigitalrootSourceFiles)" DestinationFiles="@(DigitalrootSourceFiles->'$(TargetDir)..\$(ProjectName)\$(ProjectName)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+		<Copy SourceFiles="@(DigitalrootLicenseFile)" DestinationFiles="@(DigitalrootLicenseFile->'$(TargetDir)..\$(ProjectName)\$(ProjectName)\%(Filename)%(Extension)')" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+		<GetAssemblyIdentity AssemblyFiles="$(TargetDir)$(TargetFileName)">
+			<Output TaskParameter="Assemblies" ItemName="DigitalrootAssemblyIdentities" />
+		</GetAssemblyIdentity>
+		<Message Text="Version = $([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3))" Importance="high" />
+		<Message Text="Deleting $(TargetDir)..\$(ProjectName).v$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3)).zip" Importance="high" />
+		<Delete Files="$(TargetDir)..\$(ProjectName).v$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3)).zip" />
+		<Message Text="Creating Zip file $(TargetDir)..\$(ProjectName).v$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3)).zip" Importance="high" />
+		<ZipDirectory SourceDirectory="$(TargetDir)..\$(ProjectName)" DestinationFile="$(TargetDir)..\$(ProjectName).v$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3)).zip" />
+	</Target>
+
+	<Target Name="ReleasePostBuildTS" AfterTargets="ReleasePostBuild" Condition="'$(Configuration)' == 'ReleaseTS'" DependsOnTargets="RefreshVars">
+		<Message Text="ReleasePostBuildTS Called" Importance="high" />
+		<Message Text="Deleting files from $(TargetDir)..\$(ProjectName)TS" Importance="high" />
+		<Delete Files="$(TargetDir)..\$(ProjectName)TS\**\*.*" />
+		<MakeDir Directories="$(TargetDir)..\$(ProjectName)TS\plugins" />
+		<Message Text="Copying @(DigitalrootSourceFiles) to $(TargetDir)..\$(ProjectName)TS\plugins" Importance="high" />
+		<Copy SourceFiles="@(DigitalrootSourceFiles)" DestinationFiles="@(DigitalrootSourceFiles->'$(TargetDir)..\$(ProjectName)TS\plugins\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+		<Message Text="Copying @(DigitalrootTSIOFiles) to $(TargetDir)..\$(ProjectName)TS" Importance="high" />
+		<Copy SourceFiles="@(DigitalrootTSIOFiles)" DestinationFiles="@(DigitalrootTSIOFiles->'$(TargetDir)..\$(ProjectName)TS\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+		<Copy SourceFiles="@(DigitalrootReadMeFile)" DestinationFiles="@(DigitalrootReadMeFile->'$(TargetDir)..\$(ProjectName)TS\%(Filename)%(Extension)')" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+		<Copy SourceFiles="@(DigitalrootLicenseFile)" DestinationFiles="@(DigitalrootLicenseFile->'$(TargetDir)..\$(ProjectName)TS\plugins\%(Filename)%(Extension)')" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+		<GetAssemblyIdentity AssemblyFiles="$(TargetDir)$(TargetFileName)">
+			<Output TaskParameter="Assemblies" ItemName="DigitalrootAssemblyIdentities" />
+		</GetAssemblyIdentity>
+		<Message Text="Version = $([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3))" Importance="high" />
+		<Message Text="Deleting $(TargetDir)..\$(ProjectName).v$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3)).ts.zip" Importance="high" />
+		<Delete Files="$(TargetDir)..\$(ProjectName).v$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3)).ts.zip" />
+		<Message Text="Updating Thunderstore manifest.json" Importance="high" />
+		<PropertyGroup>
+			<InputFile>$(TargetDir)..\$(ProjectName)TS\manifest.json</InputFile>
+			<OutputFile>$(TargetDir)..\$(ProjectName)TS\manifest.json</OutputFile>
+		</PropertyGroup>
+		<WriteLinesToFile File="$(OutputFile)" Lines="$([System.IO.File]::ReadAllText($(InputFile)).Replace('%VERSION_NUMBER%','$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3))'))" Overwrite="true" Encoding="ASCII" />
+		<Message Text="Creating Zip file $(TargetDir)..\$(ProjectName).v$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3)).ts.zip" Importance="high" />
+		<ZipDirectory SourceDirectory="$(TargetDir)..\$(ProjectName)TS" DestinationFile="$(TargetDir)..\$(ProjectName).v$([System.Version]::Parse(%(DigitalrootAssemblyIdentities.Version)).ToString(3)).ts.zip" />
+	</Target>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="echo 'PostBuild'" />
+	</Target>
+
+</Project>
