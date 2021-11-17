@@ -23,7 +23,7 @@ jobs:
       #nexus-cookies-header: ${{ secrets.NEXUS_COOKIE_HEADER }}
     with:
       sln-file-name: Digitalroot.Valheim.JotunnBetterTraderFix
-      proj-file-name: Digitalroot.Valheim.JotunnBetterTraderFix
+      proj-file-name: Digitalroot.Valheim.JVL.BT.Fix
       #src-path: src
       #unit-test-path: UnitTests
       skip-unit-tests: true
